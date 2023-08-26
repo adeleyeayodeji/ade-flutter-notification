@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ class Notification1 {
   static const MethodChannel _channel =
       const MethodChannel('notification1');
 
+  /// Get platform version as string
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
@@ -19,26 +21,35 @@ class Notification1 {
   /// @return
   static Future<String> showNotification({String title, String body, String channelid}) async {
     try {
-      final String version = await _channel.invokeMethod('showNotification', {
+      final String res = await _channel.invokeMethod('showNotification', {
         'title': title,
         'message': body,
         'channel_id': channelid
       });
-      return version;
+      return res;
     } catch (e) {
       print(e);
       return e.toString();
     }
   }
 
+  /// showNotificationWithAttachment
+  /// @param id
+  /// @param title
+  /// @param description
+  /// @return
   static Future<String> createNotificationChannel({String id, String name, String description}) async {
     try {
-      final String version = await _channel.invokeMethod('createNotificationChannel', {
-        'id': id,
-        'name': name,
-        'description': description,
-      });
-      return version;
+      //check platform
+      if(Platform.isAndroid) {
+        final String res = await _channel.invokeMethod(
+            'createNotificationChannel', {
+          'id': id,
+          'name': name,
+          'description': description,
+        });
+        return res;
+      }
     } catch (e) {
       print(e);
       return e.toString();
@@ -46,10 +57,11 @@ class Notification1 {
   }
 
   ///requestNotificationPermission
+  ///@return
   static Future<String> requestNotificationPermission() async {
     try{
-      final String version = await _channel.invokeMethod('requestNotificationPermission');
-      return version;
+      final String res = await _channel.invokeMethod('requestNotificationPermission');
+      return res;
     } catch(e){
       print(e);
       return e.toString();

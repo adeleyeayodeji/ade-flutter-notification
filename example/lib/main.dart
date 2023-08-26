@@ -21,6 +21,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
 
+  //text controller
+  TextEditingController titleController = TextEditingController();
+  TextEditingController bodyController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +98,29 @@ class _MyAppState extends State<MyApp> {
                 child: Text("Request notification permission",
                     style: TextStyle(color: Colors.white, fontSize: 15)),
               ),
+              //text box
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Title',
+                      ),
+                    ),
+                    //text box
+                    TextField(
+                      controller: bodyController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Body',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               //add a button to show the notification
               FlatButton(
                 //add background color blue
@@ -102,8 +129,13 @@ class _MyAppState extends State<MyApp> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0)),
                 onPressed: () {
+                  //get the title
+                  String title = titleController.text;
+                  //get the body
+                  String body = bodyController.text;
+                  //show notification
                   Notification1.showNotification(
-                      title: "Hello", body: "This is a notification", channelid: "CHAT_MESSAGES");
+                      title: title, body: body, channelid: "CHAT_MESSAGES");
                 },
                 child: Text("Show notification",
                     style: TextStyle(color: Colors.white, fontSize: 15)),
