@@ -32,8 +32,8 @@ target 'Runner' do
   use_modular_headers!
 
   # Add Firebase pods
-  pod 'Firebase', '8.0.0'
-  pod 'Firebase/Messaging', '8.0.0'
+  pod 'Firebase'
+  pod 'Firebase/Messaging'
   # Add other Firebase service pods as needed
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
