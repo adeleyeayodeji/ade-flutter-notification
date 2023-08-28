@@ -4,6 +4,10 @@ import UserNotifications
 
 /**
 * SwiftNotification1Plugin
+* This class is used to handle the FCM token and notification clicks
+* @author: Adeleye Ayodeji <adeleyeayodeji.com>
+* @since: 1.0.0
+* @flutter_version: 1.22.6
 */
 public class SwiftNotification1Plugin: NSObject, FlutterPlugin, UNUserNotificationCenterDelegate {
 
