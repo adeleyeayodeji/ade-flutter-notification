@@ -16,7 +16,7 @@ import FirebaseMessaging
       
     UNUserNotificationCenter.current().delegate = self
 
-    let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+      let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
       UNUserNotificationCenter.current().requestAuthorization(
         options: authOptions,
         completionHandler: { _, _ in }
@@ -37,23 +37,32 @@ import FirebaseMessaging
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     
-    
-   func application(application: UIApplication,
-                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-      Messaging.messaging().apnsToken = deviceToken
-   }
-    
-    
-   func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-      print("Firebase registration token: \(String(describing: fcmToken))")
+    override func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+      withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+      let userInfo = notification.request.content.userInfo
 
-//      let dataDict: [String: String] = ["token": fcmToken ?? ""]
-//      NotificationCenter.default.post(
-//        name: Notification.Name("FCMToken"),
-//        object: nil,
-//        userInfo: dataDict
-//      )
-      // TODO: If necessary send token to application server.
-      // Note: This callback is fired at each app startup and whenever a new token is generated.
+      Messaging.messaging().appDidReceiveMessage(userInfo)
+
+      // Change this to your preferred presentation option
+      completionHandler([[.alert, .sound]])
     }
+
+    override func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+      let userInfo = response.notification.request.content.userInfo
+
+      Messaging.messaging().appDidReceiveMessage(userInfo)
+
+      completionHandler()
+    }
+
+    override func application(_ application: UIApplication,
+    didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+       fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+      Messaging.messaging().appDidReceiveMessage(userInfo)
+      completionHandler(.noData)
+    }
+
 }

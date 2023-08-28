@@ -54,6 +54,21 @@ public class SwiftNotification1Plugin: NSObject, FlutterPlugin, UNUserNotificati
                     print("Notification permission granted")
                 } else {
                     print("Notification permission denied")
+                    
+//                    if let topViewController = UIApplication.shared.keyWindow?.rootViewController {
+//                        // Show an alert to the user
+//                       let alert = UIAlertController(title: "Notification Permission Denied", message: "You can enable notifications in the Settings app to stay updated.", preferredStyle: .alert)
+//                       alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+//                       alert.addAction(UIAlertAction(title: "Open Settings", style: .default, handler: { _ in
+//                           if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+//                               UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
+//                           }
+//                       }))
+//
+//                       DispatchQueue.main.async {
+//                           topViewController.present(alert, animated: true, completion: nil)
+//                       }
+//                    }
                 }
             }
             //exit
@@ -96,7 +111,7 @@ public class SwiftNotification1Plugin: NSObject, FlutterPlugin, UNUserNotificati
     public func userNotificationCenter(_ center: UNUserNotificationCenter,
                                     willPresent notification: UNNotification,
                                     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-          completionHandler([.sound, .badge, .banner, .list])
+        completionHandler([.sound, .badge, .banner, .list])
     }
 
 
