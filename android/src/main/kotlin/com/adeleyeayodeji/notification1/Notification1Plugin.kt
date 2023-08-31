@@ -18,7 +18,7 @@ class Notification1Plugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
   private lateinit var notificationHandler: NotificationHandler
   //applicationContext
-    private lateinit var applicationContext: Context
+  private lateinit var applicationContext: Context
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "notification1")
@@ -26,6 +26,7 @@ class Notification1Plugin: FlutterPlugin, MethodCallHandler {
     applicationContext = flutterPluginBinding.applicationContext
     //notificationHandler
     notificationHandler = NotificationHandler(applicationContext)
+
     //setMethodCallHandler
     channel.setMethodCallHandler(this)
   }
