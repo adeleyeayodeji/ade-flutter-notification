@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
-/// SwiftNotification1Plugin
+/// Notification1Plugin
 /// This class is used to handle the FCM token and notification clicks
 /// @author: Adeleye Ayodeji <adeleyeayodeji.com>
 /// @since: 1.0.0
@@ -79,6 +79,17 @@ class Notification1 {
   static Future<String> requestFirebaseNotificationPermission() async {
     try{
       final String res = await _channel.invokeMethod('requestFirebaseNotificationPermission');
+      return res;
+    } catch(e){
+      print(e);
+      return e.toString();
+    }
+  }
+
+  //getFCMToken
+  static Future<String> getFCMToken() async {
+    try{
+      final String res = await _channel.invokeMethod('getFCMToken');
       return res;
     } catch(e){
       print(e);

@@ -1,8 +1,7 @@
 package com.adeleyeayodeji.notification1
+import org.json.JSONObject
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
@@ -12,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
-class AdeFCMNotification : FirebaseMessagingService() {
+public class AdeFCMNotification : FirebaseMessagingService() {
 
     // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -37,9 +36,21 @@ class AdeFCMNotification : FirebaseMessagingService() {
         //log
         Log.d(TAG, "onMessageReceived: $notificationTitle $notificationBody")
 
-        //send intent to flutter channel 'onFCMMessage'
-        val intent = Intent("handleNotification")
+        // Add title and body to the JSON object
+        val notificationData = JSONObject()
+        //put data
+        notificationData.put("data", remoteMessage.data)
+
+        // Encode the JSON object as a string
+        val notificationDataString = notificationData.toString()
+
+        // Send the broadcast action ADE_FLUTTER_NOTIFICATION_MESSAGE_RECEIVED
+        val intent = Intent()
+        intent.action = "ADE_FLUTTER_NOTIFICATION_MESSAGE_RECEIVED"
+        intent.putExtra("data", notificationDataString)
+        //put title
         intent.putExtra("title", notificationTitle)
+        //put body
         intent.putExtra("body", notificationBody)
         sendBroadcast(intent)
 
@@ -54,9 +65,13 @@ class AdeFCMNotification : FirebaseMessagingService() {
      */
     override fun onNewToken(token: String) {
         Log.d(TAG, "Refreshed token: $token")
-        //send token to flutter channel 'onFCMToken'
-        val intent = Intent("onFCMToken")
+        //send broadcast
+        val intent = Intent()
+        //put token
         intent.putExtra("token", token)
+        //action ADE_FLUTTER_NOTIFICATION_TOKEN_REFRESH
+        intent.action = "ADE_FLUTTER_NOTIFICATION_TOKEN_REFRESH"
+        //send broadcast
         sendBroadcast(intent)
     }
     // [END on_new_token]

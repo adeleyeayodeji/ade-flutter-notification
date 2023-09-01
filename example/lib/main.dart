@@ -9,13 +9,21 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:notification1/notification1.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import 'function.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Notification1.createNotificationChannel(
       id: "CHAT_MESSAGES",
       name: "Chats",
       description: "This is a notification from Notification1");
-  runApp(MyApp());
+  runApp(MaterialApp(
+    //use system theme
+    darkTheme: ThemeData.dark(),
+    themeMode: ThemeMode.system,
+    debugShowCheckedModeBanner: false,
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -60,28 +68,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> scanBarcodeNormal() async {
-    String barcodeScanRes;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          "#ff6666", "Cancel", true, ScanMode.BARCODE);
-      print(barcodeScanRes);
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _scanBarcode = barcodeScanRes;
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -90,17 +76,18 @@ class _MyAppState extends State<MyApp> {
 
     //add a listener to handle notification when the app is in the foreground
     const MethodChannel _notificationChannel = MethodChannel('notification1');
+
     _notificationChannel.setMethodCallHandler((call) async {
       //Handle notification methods here
       switch (call.method) {
         case "handleNotification":
           // Handle the notification data here
-          Map<dynamic, dynamic> notificationData = call.arguments;
+          dynamic notificationData = call.arguments;
           print('Received notification in Flutter: $notificationData');
           break;
         case "onNotificationClick":
           // Handle notification click here
-          Map<dynamic, dynamic> notificationData = call.arguments;
+          dynamic notificationData = call.arguments;
           print('Notification clicked in Flutter: $notificationData');
           break;
         case "onFCMToken":
@@ -114,6 +101,21 @@ class _MyAppState extends State<MyApp> {
           break;
       }
     });
+  }
+
+  /**
+   * On app reload, get the device token
+   */
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    //check if state is resumed
+    if (state == AppLifecycleState.resumed) {
+      //check if platform is android
+      if (Platform.isAndroid) {
+        //request for device token
+        Notification1.getFCMToken();
+      }
+    }
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -138,12 +140,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      //use system theme
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.system,
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: const Text('Ade Flutter Notification'),
         ),
@@ -160,7 +157,7 @@ class _MyAppState extends State<MyApp> {
                 deviceToken != "" ? Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: QrImage(
-                    data: "1234567890",
+                    data: deviceToken,
                     version: QrVersions.auto,
                     size: 200.0,
                   ),
@@ -216,15 +213,30 @@ class _MyAppState extends State<MyApp> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0)),
                   onPressed: () {
-                    // print(result);
-                    return;
-                    //get the title
-                    String title = titleController.text;
-                    //get the body
-                    String body = bodyController.text;
-                    //show notification
-                    Notification1.showNotification(
-                        title: title, body: body, channelid: "CHAT_MESSAGES");
+                    //check if _scanBarcode is not equal to unknown
+                    if(_scanBarcode != "Unknown" && deviceToken != "" && titleController.text != "" && bodyController.text != ""){
+                      //send notification
+                      sendServerNotifcation(titleController.text, bodyController.text, _scanBarcode);
+                    }else{
+                      //show error
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("Error"),
+                            content: Text("Please scan user QR code"),
+                            actions: [
+                              FlatButton(
+                                child: Text("Close"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              )
+                            ],
+                          );
+                        },
+                      );
+                    }
                   },
                   child: Text("Send notification",
                       style: TextStyle(color: Colors.white, fontSize: 15)),
@@ -233,7 +245,6 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

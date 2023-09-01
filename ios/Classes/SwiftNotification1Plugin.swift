@@ -46,6 +46,12 @@ public class SwiftNotification1Plugin: NSObject, FlutterPlugin, UNUserNotificati
             scheduleLocalNotification(title: title, body: body, channelid: channelid)
           //exit
           return
+    /**
+     * Get FCM Token
+    */
+     case "getFCMToken":
+          print("Integration not available on IOS, get token on app load instead")
+          result("Integration not available on IOS, get token on app load instead")
      /**
       * Request notification permission
       */

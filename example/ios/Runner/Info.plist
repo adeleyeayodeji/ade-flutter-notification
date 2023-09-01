@@ -64,5 +64,9 @@
     <true/>
     <key>NSCameraUsageDescription</key>
     <string>This app needs camera access to scan QR codes</string>
+    <key>UIBackgroundModes</key>
+    <array>
+    	<string>fetch</string>
+    </array>
 </dict>
 </plist>

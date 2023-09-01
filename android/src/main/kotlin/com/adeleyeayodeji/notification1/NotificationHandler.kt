@@ -34,27 +34,43 @@ class NotificationHandler(private val context: Context) {
         const val PERMISSION_REQUEST_CODE = 123 // You can set any code here
     }
 
-    fun showNotification(title: String, message: String, channel_id: String) {
+    fun showNotification(title: String, message: String, channel_id: String, dynamicnulldata: String? = null) {
        try {
+              //get small icon name
            val smallIconName = context.getString(context.resources.getIdentifier("small_icon", "string", context.packageName))
+
+           // Create an intent to open an activity when the notification is clicked
+           val intent = Intent(context, context.javaClass)
+           //add action
+           intent.action = "ADE_FLUTTER_NOTIFICATION_CLICK"
+           //check if dynamicnulldata is not null
+              if (dynamicnulldata != null) {
+                //put dynamicnulldata
+                intent.putExtra("data", dynamicnulldata)
+              }else{
+                //put data
+                intent.putExtra("data", "null")
+              }
+           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+           val pendingIntent = PendingIntent.getActivity(
+               context, 0, intent, PendingIntent.FLAG_IMMUTABLE
+           )
+
            // Create notification
            val builder = NotificationCompat.Builder(context, channel_id).setSmallIcon(
                context.resources.getIdentifier(
                    smallIconName, "drawable", context.packageName
                )
-           ).setContentTitle(title).setContentText(message)
+           ).setContentTitle(title).setContentText(message).setAutoCancel(true).setContentIntent(
+               pendingIntent
+           )
 
            val notificationManager = NotificationManagerCompat.from(context)
            // notificationId is a unique int for each notification that you must define
            notificationManager.notify(1, builder.build())
-
-           // Show toast
-           showNotificationSentToast()
        } catch (e: Exception) {
-           //print
-           println("Error: ${e.message}")
-           // Show toast
-           Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+           //log
+           Log.d("ADEFLUTTERNOTIFICATION", "Error: ${e.message}")
        }
     }
 
@@ -72,6 +88,7 @@ class NotificationHandler(private val context: Context) {
         val id = mapData["id"]
         val name = mapData["name"]
         val descriptionText = mapData["description"]
+
         //create notification channel
         val notificationChannel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel(
@@ -93,6 +110,9 @@ class NotificationHandler(private val context: Context) {
 
         //set description
         notificationChannel.description = descriptionText
+
+        //add sound
+        notificationChannel.setShowBadge(true)
 
         //get notification manager
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
