@@ -10,32 +10,17 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import android.app.ActivityManager
 
 public class AdeFCMNotification : FirebaseMessagingService() {
 
     // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: ${remoteMessage.from}")
-
-        // Check if message contains a data payload.
-        if (remoteMessage.data.isNotEmpty()) {
-            Log.d(TAG, "Message data payload: ${remoteMessage.data}")
-        }
-
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-//            Log.d(TAG, "Message Notification Body: ${it.body}")
-        }
 
         //get notification title
         val notificationTitle = remoteMessage.notification?.title
         //get notification body
         val notificationBody = remoteMessage.notification?.body
-        //log
-        Log.d(TAG, "onMessageReceived: $notificationTitle $notificationBody")
-
         // Add title and body to the JSON object
         val notificationData = JSONObject()
         //put data
@@ -52,7 +37,15 @@ public class AdeFCMNotification : FirebaseMessagingService() {
         intent.putExtra("title", notificationTitle)
         //put body
         intent.putExtra("body", notificationBody)
-        sendBroadcast(intent)
+
+        // Check if the app is in the foreground
+        if (isAppInForeground(this)) {
+            // Send a broadcast to the app
+            sendBroadcast(intent)
+        } else {
+            Log.d(TAG, "App is in the background")
+            // do nothing
+        }
 
     }
     // [END receive_message]
@@ -83,5 +76,19 @@ public class AdeFCMNotification : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "AdeFCMNotification"
+
+        private fun isAppInForeground(context: Context): Boolean {
+            val activityManager =
+                context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
+            val packageName = context.packageName
+            val runningAppProcesses = activityManager?.runningAppProcesses ?: return false
+
+            for (processInfo in runningAppProcesses) {
+                if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.processName == packageName) {
+                    return true
+                }
+            }
+            return false
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.adeleyeayodeji.notification1
 
+import android.app.PendingIntent
 import androidx.annotation.NonNull
 import android.content.BroadcastReceiver
 import android.content.IntentFilter
@@ -139,8 +140,13 @@ class Notification1Plugin: BroadcastReceiver(), FlutterPlugin, MethodCallHandler
         val title = intent?.getStringExtra("title")
         //get body
         val body = intent?.getStringExtra("body")
-        //trigger notification
-        notificationHandler.showNotification(title!!, body!!, "CHAT_MESSAGES")
+        try {
+          //trigger notification
+          notificationHandler.showNotification(title!!, body!!, "CHAT_MESSAGES")
+        } catch (e: Exception) {
+          //log
+          Log.d("Notification1Plugin", "Error: ${e.message}")
+        }
         //log
 //        Log.d("Notification1Plugin", "onReceive: $data")
         //send data to flutter
@@ -150,7 +156,7 @@ class Notification1Plugin: BroadcastReceiver(), FlutterPlugin, MethodCallHandler
         //get data from intent
         val data = intent?.getStringExtra("data")
         //log
-//        Log.d("Notification1Plugin", "onClick: $data")
+        Log.d("Notification1Plugin", "we click onClick: $data")
         //send data to flutter
         channel.invokeMethod("onNotificationClick", data)
       }

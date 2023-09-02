@@ -78,5 +78,16 @@
         </service>
         <!-- [END firebase_service] -->
 
+        <!-- AdeFlutterActivity Custom Flutter activity -->
+<!--        <activity-->
+<!--            android:name="com.adeleyeayodeji.notification1.AdeFlutterActivity"-->
+<!--            android:launchMode="singleTop"-->
+<!--            android:exported="true"-->
+<!--            android:theme="@style/LaunchTheme">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.adeleyeayodeji.notification1.ADE_FLUTTER_NOTIFICATION_CLICK"/>-->
+<!--                <category android:name="android.intent.category.DEFAULT"/>-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
     </application>
 </manifest>

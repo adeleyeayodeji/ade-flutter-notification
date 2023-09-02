@@ -1,30 +1,19 @@
 package com.adeleyeayodeji.notification1
 
-import android.content.Context
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import android.widget.Toast
 import android.Manifest
-import android.app.Activity
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import android.content.ContextWrapper
+import android.app.ActivityManager
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
-import android.app.NotificationManager;
-import android.app.NotificationChannel;
-import android.net.Uri;
-import android.media.AudioAttributes;
-import android.content.ContentResolver;
 import android.graphics.Color
 import android.os.Build
-import android.app.PendingIntent
-import android.content.ContentValues.TAG
-import android.media.RingtoneManager
 import android.util.Log
+import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 
 
 class NotificationHandler(private val context: Context) {
@@ -34,45 +23,57 @@ class NotificationHandler(private val context: Context) {
         const val PERMISSION_REQUEST_CODE = 123 // You can set any code here
     }
 
-    fun showNotification(title: String, message: String, channel_id: String, dynamicnulldata: String? = null) {
-       try {
-              //get small icon name
-           val smallIconName = context.getString(context.resources.getIdentifier("small_icon", "string", context.packageName))
+    fun showNotification(title: String, message: String, channel_id: String, dynamicnulldata: String? = null, notificationId: Int = 1) {
+        try {
+            // Get small icon name
+            val smallIconName = context.getString(context.resources.getIdentifier("small_icon", "string", context.packageName))
 
-           // Create an intent to open an activity when the notification is clicked
-           val intent = Intent(context, context.javaClass)
-           //add action
-           intent.action = "ADE_FLUTTER_NOTIFICATION_CLICK"
-           //check if dynamicnulldata is not null
-              if (dynamicnulldata != null) {
-                //put dynamicnulldata
+            // Create an intent to open an activity when the notification is clicked in flutter
+            val intent = Intent(context, AdeFlutterActivity::class.java)
+            // Add a unique action name for your app
+            intent.action = "ADE_FLUTTER_NOTIFICATION_CLICK"
+            // Check if dynamicnulldata is not null
+            if (dynamicnulldata != null) {
+                // Put dynamicnulldata
                 intent.putExtra("data", dynamicnulldata)
-              }else{
-                //put data
+            } else {
+                // Put data
                 intent.putExtra("data", "null")
-              }
-           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-           val pendingIntent = PendingIntent.getActivity(
-               context, 0, intent, PendingIntent.FLAG_IMMUTABLE
-           )
+            }
 
-           // Create notification
-           val builder = NotificationCompat.Builder(context, channel_id).setSmallIcon(
-               context.resources.getIdentifier(
-                   smallIconName, "drawable", context.packageName
-               )
-           ).setContentTitle(title).setContentText(message).setAutoCancel(true).setContentIntent(
-               pendingIntent
-           )
+            intent.setAction(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-           val notificationManager = NotificationManagerCompat.from(context)
-           // notificationId is a unique int for each notification that you must define
-           notificationManager.notify(1, builder.build())
-       } catch (e: Exception) {
-           //log
-           Log.d("ADEFLUTTERNOTIFICATION", "Error: ${e.message}")
-       }
+            val pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            // Create notification
+            val builder = NotificationCompat.Builder(context, channel_id)
+                .setSmallIcon(
+                context.resources.getIdentifier(
+                    smallIconName, "drawable", context.packageName
+                )
+            )
+                .setContentTitle(title)
+                .setContentText(message)
+                .setAutoCancel(true)
+                .setContentIntent(
+                pendingIntent
+            )
+
+            val notificationManager = NotificationManagerCompat.from(context)
+            //randomise notification id
+            val notificationId = (0..100).random()
+            // Use the provided notificationId to ensure unique notifications
+            notificationManager.notify(notificationId, builder.build())
+        } catch (e: Exception) {
+            // Log any errors
+            Log.d("ADEFLUTTERNOTIFICATION", "Error: ${e.message}")
+        }
     }
+
 
     fun requestNotificationPermission(): Boolean {
         //checkIfNotificationAllowed
@@ -174,5 +175,22 @@ class NotificationHandler(private val context: Context) {
             Toast.makeText(context, "Notification not allowed", Toast.LENGTH_SHORT).show()
             false
         }
+    }
+
+    /**
+     * Check if the app is running in the background
+     */
+    private fun isAppRunningInBackground(context: Context): Boolean {
+        val activityManager =
+            context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
+        val packageName = context.packageName
+        val runningAppProcesses = activityManager?.runningAppProcesses ?: return false
+
+        for (processInfo in runningAppProcesses) {
+            if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && processInfo.processName == packageName) {
+                return false
+            }
+        }
+        return true
     }
 }
