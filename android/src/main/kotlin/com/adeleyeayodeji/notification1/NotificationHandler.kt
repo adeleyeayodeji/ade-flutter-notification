@@ -52,16 +52,16 @@ class NotificationHandler(private val context: Context) {
             // Create notification
             val builder = NotificationCompat.Builder(context, channel_id)
                 .setSmallIcon(
-                context.resources.getIdentifier(
-                    smallIconName, "drawable", context.packageName
+                    context.resources.getIdentifier(
+                        smallIconName, "drawable", context.packageName
+                    )
                 )
-            )
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setContentIntent(
-                pendingIntent
-            )
+                    pendingIntent
+                )
 
             val notificationManager = NotificationManagerCompat.from(context)
             //randomise notification id

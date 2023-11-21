@@ -121,7 +121,12 @@ public class SwiftNotification1Plugin: NSObject, FlutterPlugin, UNUserNotificati
     public func userNotificationCenter(_ center: UNUserNotificationCenter,
                                     willPresent notification: UNNotification,
                                     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.sound, .badge, .banner, .list])
+        if #available(iOS 14.0, *) {
+            completionHandler([.sound, .badge, .banner, .list])
+        } else {
+            // Fallback on earlier versions
+            completionHandler([.sound, .badge])
+        }
     }
 
 

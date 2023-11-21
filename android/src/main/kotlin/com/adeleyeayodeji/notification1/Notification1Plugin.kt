@@ -21,7 +21,7 @@ class Notification1Plugin: BroadcastReceiver(), FlutterPlugin, MethodCallHandler
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
+  lateinit var channel : MethodChannel
   private lateinit var notificationHandler: NotificationHandler
   //applicationContext
   private lateinit var applicationContext2: Context
@@ -128,6 +128,9 @@ class Notification1Plugin: BroadcastReceiver(), FlutterPlugin, MethodCallHandler
       return
     }
 
+    //Log Am here
+    Log.d("Notification1Plugin", "onReceive: Am here")
+
     // Get the action from the intent
     val action = intent.action
 
@@ -141,8 +144,14 @@ class Notification1Plugin: BroadcastReceiver(), FlutterPlugin, MethodCallHandler
         //get body
         val body = intent?.getStringExtra("body")
         try {
+          //check if title and body is not null
+            if (title == null || body == null) {
+              //log
+                Log.d("Notification1Plugin", "Error: title or body is null")
+                return
+            }
           //trigger notification
-          notificationHandler.showNotification(title!!, body!!, "CHAT_MESSAGES")
+          notificationHandler.showNotification(title!!, body!!, "CHAT_MESSAGES", data)
         } catch (e: Exception) {
           //log
           Log.d("Notification1Plugin", "Error: ${e.message}")
@@ -171,5 +180,37 @@ class Notification1Plugin: BroadcastReceiver(), FlutterPlugin, MethodCallHandler
         // Handle unknown or default action
       }
     }
+  }
+
+  /**
+   * Invoke flutter method
+   */
+    public fun invokeFlutterMethod(method: String, data: String?) {
+    // Check if the channel is not initialized
+    if (!channelInitialized()) {
+      // Log an error
+      Log.d("Notification1Plugin", "invokeFlutterMethod: Channel not initialized")
+      return
+    }
+
+    // Invoke the method on the channel
+    channel.invokeMethod(method, data)
+  }
+
+  public fun channelInitialized(): Boolean {
+    // Check if the channel is not initialized
+    if (!::channel.isInitialized) {
+      // Log an error
+      Log.d("Notification1Plugin", "Channel not initialized")
+      return false
+    }
+
+    // Return true if the channel is initialized
+    return true
+  }
+
+  fun getMethodChannel(): MethodChannel {
+    // Return the channel
+    return channel
   }
 }

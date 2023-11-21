@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 sendServerNotifcation(String title, String body, String _scanBarcode) async {
   var headers = {
-    'Authorization': 'key=your_server_key',
+    'Authorization': 'key=YOUR_SERVER_KEY',
     'Content-Type': 'application/json'
   };
   var request = http.Request('POST', Uri.parse('https://fcm.googleapis.com/fcm/send'));
